@@ -254,6 +254,9 @@ function chc_render_inbox() {
 						</td>
 						<td data-label="<?php esc_attr_e( 'Result', 'clickhive-calls' ); ?>">
 							<span class="chc-badge chc-<?php echo esc_attr( $outcome ); ?>"><?php echo esc_html( isset( $outcomes[ $outcome ] ) ? $outcomes[ $outcome ] : $outcome ); ?></span>
+							<?php if ( 'text_requested' !== $outcome && get_post_meta( $id, '_chc_text_sent', true ) ) : ?>
+								<span class="chc-text-tag"><?php esc_html_e( 'Text sent', 'clickhive-calls' ); ?></span>
+							<?php endif; ?>
 						</td>
 						<td data-label="<?php esc_attr_e( 'Length', 'clickhive-calls' ); ?>"<?php echo $duration ? '' : ' class="chc-blank"'; ?>><?php echo $duration ? esc_html( sprintf( '%d:%02d', floor( $duration / 60 ), $duration % 60 ) ) : '&ndash;'; ?></td>
 						<td data-label="<?php esc_attr_e( 'Voicemail', 'clickhive-calls' ); ?>" class="chc-play-cell<?php echo ( $rec && $can_play ) ? '' : ' chc-blank'; ?>">
@@ -358,6 +361,11 @@ function chc_render_details( $id, $when, $lines ) {
 	if ( $line_num ) {
 		$label = $line_name ? $line_name . ' · ' . chc_format_phone( $line_num ) : chc_format_phone( $line_num );
 		$rows[ __( 'Line called', 'clickhive-calls' ) ] = esc_html( $label );
+	}
+	if ( get_post_meta( $id, '_chc_text_sent', true ) ) {
+		$rows[ __( 'Text', 'clickhive-calls' ) ] = 'text_requested' === $outcome
+			? esc_html__( 'Caller asked for a text; it was sent from this line.', 'clickhive-calls' )
+			: esc_html__( 'Caller asked for a text (sent), then left this voicemail.', 'clickhive-calls' );
 	}
 
 	if ( $has_route ) {

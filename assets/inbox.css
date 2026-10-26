@@ -70,3 +70,4 @@
 .chc-sort.chc-sorted .dashicons, .chc-sort:hover .dashicons { color: #2271b1; }
 .chc-unheard-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 10px; background: #F7941D; color: #fff; font-size: 11px; font-weight: 600; line-height: 16px; vertical-align: middle; }
 .chc-play.chc-unheard { border-color: #F7941D; color: #8a4b00; }
+.chc-text-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 10px; background: #e7f1fb; color: #1d4f7a; font-size: 11px; font-weight: 600; line-height: 16px; vertical-align: middle; }

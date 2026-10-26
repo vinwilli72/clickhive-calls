@@ -95,6 +95,11 @@ function chc_upsert_call( array $d ) {
 	if ( ! ( 'voicemail' === $existing && 'voicemail' !== $outcome ) ) {
 		update_post_meta( $id, '_chc_outcome', $outcome );
 	}
+	// The caller asked for a text. Kept even when they then leave a voicemail,
+	// so staff know a text already went out.
+	if ( 'text_requested' === $outcome || ! empty( $d['text_sent'] ) ) {
+		update_post_meta( $id, '_chc_text_sent', 1 );
+	}
 	if ( $caller ) {
 		update_post_meta( $id, '_chc_caller', $caller );
 	}

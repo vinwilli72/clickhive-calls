@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Click Hive Calls
  * Description:       Call inbox for phone systems managed by Click Hive Marketing. Shows every call to this site's business number, plays voicemails securely, and tracks follow-up.
- * Version:           1.3.2
+ * Version:           1.4.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Click Hive Marketing
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CHC_VERSION', '1.3.2' );
+define( 'CHC_VERSION', '1.4.0' );
 define( 'CHC_FILE', __FILE__ );
 define( 'CHC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CHC_URL', plugin_dir_url( __FILE__ ) );

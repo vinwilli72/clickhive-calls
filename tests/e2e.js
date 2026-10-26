@@ -331,6 +331,16 @@ function clearCalls() {
       assert.doesNotMatch(html.slice(html.indexOf('<tbody>')), /<option value="handled" selected/);
     });
 
+    await check('text then voicemail: filed as a voicemail tagged Text sent', async () => {
+      await post({ ...base, call_sid: sid(40), outcome: 'text_requested', caller: '+12065550140' });
+      await post({ ...base, call_sid: sid(40), outcome: 'voicemail', text_sent: true, recording_sid: rec(40), duration_seconds: 15, caller: '+12065550140' });
+      await post({ ...base, call_sid: sid(40), outcome: 'text_requested', text_sent: true, caller: '+12065550140' });
+      const html = await inbox('&s=2065550140');
+      assert.match(html, /chc-badge chc-voicemail">Voicemail/);
+      assert.match(html, /chc-text-tag">Text sent/);
+      assert.match(html, /asked for a text \(sent\), then left this voicemail/);
+    });
+
     console.log(`\n# pass ${passed}`);
   } catch (e) {
     console.error(`\nnot ok - ${e.message}`);

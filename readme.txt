@@ -1,7 +1,7 @@
 === Click Hive Calls ===
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.3.2
+Stable tag: 1.4.0
 
 Call inbox for phone systems managed by Click Hive Marketing.
 
@@ -40,6 +40,9 @@ Dashboard > Updates and click "Check again".
 * Requires pretty permalinks (any setting except "Plain") so /wp-json/ works.
 
 == Changelog ==
+
+= 1.4.0 =
+* A caller who asks for a text and then leaves a voicemail shows as a Voicemail tagged "Text sent", so nobody texts them twice.
 
 = 1.3.2 =
 * Click Hive icon in the admin menu and on the Updates screen.
