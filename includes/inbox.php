@@ -5,11 +5,20 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * The Click Hive mark as a one-colour menu icon. WordPress recolours it to
+ * match the admin colour scheme, the same as its own icons.
+ */
+function chc_menu_icon() {
+	$svg = file_get_contents( CHC_DIR . 'assets/menu-icon.svg' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+	return $svg ? 'data:image/svg+xml;base64,' . base64_encode( $svg ) : 'dashicons-phone';
+}
+
 add_action( 'admin_menu', function () {
 	$count = current_user_can( 'chc_view_calls' ) ? chc_open_count() : 0;
 	$title = chc_setting( 'inbox_title' );
 	$badge = $count ? sprintf( ' <span class="awaiting-mod chc-count count-%1$d"><span class="pending-count">%1$d</span></span>', $count ) : '';
-	add_menu_page( $title, esc_html( $title ) . $badge, 'chc_view_calls', 'clickhive-calls', 'chc_render_inbox', 'dashicons-phone', 3 );
+	add_menu_page( $title, esc_html( $title ) . $badge, 'chc_view_calls', 'clickhive-calls', 'chc_render_inbox', chc_menu_icon(), 3 );
 } );
 
 add_action( 'admin_enqueue_scripts', function ( $hook ) {
