@@ -1,7 +1,7 @@
 === Click Hive Calls ===
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 
 Call inbox for phone systems managed by Click Hive Marketing.
 
@@ -40,6 +40,9 @@ Dashboard > Updates and click "Check again".
 * Requires pretty permalinks (any setting except "Plain") so /wp-json/ works.
 
 == Changelog ==
+
+= 1.3.1 =
+* Call Inbox and Settings links on the Plugins screen.
 
 = 1.3.0 =
 * Automatic updates: new versions appear under Plugins with "Update now". Settings and calls are kept.
