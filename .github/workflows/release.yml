@@ -1,0 +1,30 @@
+# When a release is published on GitHub, build clickhive-calls.zip (the plugin
+# folder without tests or repo files) and attach it to the release. Every site
+# downloads that zip when it updates.
+name: Attach plugin zip to release
+on:
+  release:
+    types: [published]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the version in the plugin matches the release tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VER=$(grep -oP "define\( 'CHC_VERSION', '\K[^']+" clickhive-calls.php)
+          HDR=$(grep -oP '^\s*\*\s*Version:\s*\K\S+' clickhive-calls.php)
+          echo "tag=$TAG constant=$VER header=$HDR"
+          [ "$TAG" = "$VER" ] && [ "$TAG" = "$HDR" ] || { echo "Version mismatch: update clickhive-calls.php before releasing"; exit 1; }
+      - name: Build zip
+        run: |
+          mkdir -p build/clickhive-calls
+          rsync -a --exclude '.git*' --exclude '.github' --exclude 'tests' --exclude 'build' ./ build/clickhive-calls/
+          cd build && zip -qr clickhive-calls.zip clickhive-calls
+      - name: Attach to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" build/clickhive-calls.zip --clobber
