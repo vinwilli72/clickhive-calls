@@ -1,7 +1,7 @@
 === Click Hive Calls ===
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 
 Call inbox for phone systems managed by Click Hive Marketing.
 
@@ -40,6 +40,10 @@ Dashboard > Updates and click "Check again".
 * Requires pretty permalinks (any setting except "Plain") so /wp-json/ works.
 
 == Changelog ==
+
+= 1.5.0 =
+* Call details only say "Rang" when a phone actually rang. Calls where the caller never chose an option that rings say so.
+* Administrators can delete a call from its details (for test calls). The recording stays with the phone provider.
 
 = 1.4.0 =
 * A caller who asks for a text and then leaves a voicemail shows as a Voicemail tagged "Text sent", so nobody texts them twice.

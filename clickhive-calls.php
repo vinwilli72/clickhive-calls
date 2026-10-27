@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Click Hive Calls
  * Description:       Call inbox for phone systems managed by Click Hive Marketing. Shows every call to this site's business number, plays voicemails securely, and tracks follow-up.
- * Version:           1.4.0
+ * Version:           1.5.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Click Hive Marketing
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CHC_VERSION', '1.4.0' );
+define( 'CHC_VERSION', '1.5.0' );
 define( 'CHC_FILE', __FILE__ );
 define( 'CHC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CHC_URL', plugin_dir_url( __FILE__ ) );
@@ -67,12 +67,21 @@ function chc_activate() {
 		foreach ( array_keys( $caps ) as $cap ) {
 			$admin->add_cap( $cap );
 		}
+		$admin->add_cap( 'chc_delete_calls' ); // deleting calls is for administrators only
 	}
 
 	if ( ! wp_next_scheduled( 'chc_daily_cleanup' ) ) {
 		wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'chc_daily_cleanup' );
 	}
 }
+
+// Updates don't re-run activation, so give administrators any ability added later.
+add_action( 'admin_init', function () {
+	$admin = get_role( 'administrator' );
+	if ( $admin && ! $admin->has_cap( 'chc_delete_calls' ) ) {
+		$admin->add_cap( 'chc_delete_calls' );
+	}
+} );
 
 function chc_deactivate() {
 	wp_clear_scheduled_hook( 'chc_daily_cleanup' );

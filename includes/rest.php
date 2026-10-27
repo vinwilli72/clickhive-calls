@@ -43,7 +43,32 @@ add_action( 'rest_api_init', function () {
 			},
 		)
 	);
+	register_rest_route(
+		CHC_NS,
+		'/calls/(?P<id>\d+)',
+		array(
+			'methods'             => 'DELETE',
+			'callback'            => 'chc_rest_delete',
+			'permission_callback' => function () {
+				return current_user_can( 'chc_delete_calls' );
+			},
+		)
+	);
 } );
+
+/**
+ * Deletes one call record from the inbox (admins only). The recording itself
+ * stays with the phone provider and follows its own retention.
+ */
+function chc_rest_delete( WP_REST_Request $req ) {
+	$id   = (int) $req['id'];
+	$post = get_post( $id );
+	if ( ! $post || CHC_CPT !== $post->post_type ) {
+		return new WP_Error( 'chc_not_found', 'Not found', array( 'status' => 404 ) );
+	}
+	wp_delete_post( $id, true );
+	return array( 'ok' => true, 'open_count' => chc_open_count() );
+}
 
 /**
  * Accepts a request only if it was signed with this site's key in the last

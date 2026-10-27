@@ -341,6 +341,27 @@ function clearCalls() {
       assert.match(html, /asked for a text \(sent\), then left this voicemail/);
     });
 
+    await check('details say "Not rung" when the caller never chose an option that rings', async () => {
+      await post({ ...base, call_sid: sid(50), outcome: 'missed', rang: false, caller: '+12065550150', receivers: ['+13605211487'], after_hours: false });
+      const html = await inbox('&s=2065550150');
+      assert.match(html, /Set to ring/);
+      assert.match(html, /Not rung: the caller didn&#039;t choose an option that rings/);
+      assert.doesNotMatch(html, /<dt>Rang<\/dt>/);
+    });
+
+    await check('details say "Rang" when a phone actually rang', async () => {
+      await post({ ...base, call_sid: sid(51), outcome: 'missed', rang: true, caller: '+12065550151', receivers: ['+13605211487'], after_hours: false });
+      assert.match(await inbox('&s=2065550151'), /<dt>Rang<\/dt>/);
+    });
+
+    await check('a Call Manager cannot delete, and sees no Delete button', async () => {
+      const html = await inbox('&s=2065550151');
+      assert.doesNotMatch(html, /chc-delete/);
+      const id = /<tr data-id="(\d+)"/.exec(html)[1];
+      const r = await fetch(`${WP_URL}/wp-json/clickhive-calls/v1/calls/${id}`, { method: 'DELETE', headers: { Cookie: maria.cookie(), 'X-WP-Nonce': nonce } });
+      assert.equal(r.status, 403);
+    });
+
     console.log(`\n# pass ${passed}`);
   } catch (e) {
     console.error(`\nnot ok - ${e.message}`);

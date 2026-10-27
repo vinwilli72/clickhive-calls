@@ -117,4 +117,28 @@
         sel.disabled = false;
       });
   });
+
+  // Delete (administrators only): remove the call and its details row.
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.chc-delete');
+    if (!btn) return;
+    if (!window.confirm(CHC.text.confirm)) return;
+    var id = btn.getAttribute('data-id');
+    btn.disabled = true;
+    fetch(CHC.root + id, { method: 'DELETE', headers: headers, credentials: 'same-origin' })
+      .then(function (r) {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then(function () {
+        var row = document.querySelector('tr[data-id="' + id + '"]');
+        var details = document.getElementById('chc-details-' + id);
+        if (details) details.remove();
+        if (row) row.remove();
+      })
+      .catch(function () {
+        btn.disabled = false;
+        window.alert(CHC.text.nodelete);
+      });
+  });
 })();

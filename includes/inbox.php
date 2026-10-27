@@ -39,6 +39,8 @@ add_action( 'admin_enqueue_scripts', function ( $hook ) {
 				'failed'   => __( 'Could not save. Refresh and try again.', 'clickhive-calls' ),
 				'noplay'   => __( 'This voicemail could not be played.', 'clickhive-calls' ),
 				'expired'  => __( 'This voicemail is no longer available.', 'clickhive-calls' ),
+				'confirm'  => __( 'Delete this call from the inbox? This cannot be undone.', 'clickhive-calls' ),
+				'nodelete' => __( 'Could not delete. Refresh and try again.', 'clickhive-calls' ),
 			),
 		)
 	);
@@ -382,13 +384,18 @@ function chc_render_details( $id, $when, $lines ) {
 				$text = sprintf( '%d. %s', $i + 1, chc_format_phone( $r ) ) . ( $is ? ' (' . __( 'answered', 'clickhive-calls' ) . ')' : '' );
 				$rang[] = '<span class="chc-receiver' . ( $is ? ' chc-answered' : '' ) . '">' . esc_html( $text ) . '</span>';
 			}
-			$label = $after ? __( 'Set to ring', 'clickhive-calls' ) : __( 'Rang', 'clickhive-calls' );
+			// Only say "Rang" when a phone really rang. Older calls didn't record it.
+			$rang_flag = (string) get_post_meta( $id, '_chc_rang', true );
+			$did_ring  = '1' === $rang_flag || 'answered' === $outcome || '' !== $answered;
+			$label     = ( $did_ring && ! $after ) ? __( 'Rang', 'clickhive-calls' ) : __( 'Set to ring', 'clickhive-calls' );
 			$rows[ $label ] = implode( '<br>', $rang );
 			if ( $after ) {
 				$rows[ $label ] .= '<br><span class="chc-muted">' . esc_html__( 'After hours, callers go straight to voicemail.', 'clickhive-calls' ) . '</span>';
+			} elseif ( '0' === $rang_flag && ! $did_ring ) {
+				$rows[ $label ] .= '<br><span class="chc-muted">' . esc_html__( 'Not rung: the caller didn\'t choose an option that rings.', 'clickhive-calls' ) . '</span>';
 			}
 		}
-		if ( 'answered' !== $outcome && ! $answered && ! $after && is_array( $receivers ) && $receivers ) {
+		if ( 'answered' !== $outcome && ! $answered && ! $after && is_array( $receivers ) && $receivers && '1' === (string) get_post_meta( $id, '_chc_rang', true ) ) {
 			$rows[ __( 'Answered by', 'clickhive-calls' ) ] = esc_html__( 'No one answered', 'clickhive-calls' );
 		}
 		if ( $notice ) {
@@ -439,7 +446,15 @@ function chc_render_details( $id, $when, $lines ) {
 	} else {
 		echo '<p class="chc-muted">' . esc_html__( 'Nothing yet.', 'clickhive-calls' ) . '</p>';
 	}
-	echo '</div></div>';
+	echo '</div>';
+	if ( current_user_can( 'chc_delete_calls' ) ) {
+		printf(
+			'<p class="chc-delete-wrap"><button type="button" class="button-link chc-delete" data-id="%d">%s</button></p>',
+			(int) $id,
+			esc_html__( 'Delete this call', 'clickhive-calls' )
+		);
+	}
+	echo '</div>';
 }
 
 /**

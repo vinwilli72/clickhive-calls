@@ -95,6 +95,14 @@ function chc_upsert_call( array $d ) {
 	if ( ! ( 'voicemail' === $existing && 'voicemail' !== $outcome ) ) {
 		update_post_meta( $id, '_chc_outcome', $outcome );
 	}
+	// Whether a phone was actually rung. Once true, it stays true.
+	if ( array_key_exists( 'rang', $d ) ) {
+		if ( $d['rang'] ) {
+			update_post_meta( $id, '_chc_rang', 1 );
+		} elseif ( '' === (string) get_post_meta( $id, '_chc_rang', true ) ) {
+			update_post_meta( $id, '_chc_rang', 0 );
+		}
+	}
 	// The caller asked for a text. Kept even when they then leave a voicemail,
 	// so staff know a text already went out.
 	if ( 'text_requested' === $outcome || ! empty( $d['text_sent'] ) ) {
