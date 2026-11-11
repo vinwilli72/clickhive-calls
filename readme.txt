@@ -1,7 +1,7 @@
 === Click Hive Calls ===
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 
 Call inbox for phone systems managed by Click Hive Marketing.
 
@@ -40,6 +40,9 @@ Dashboard > Updates and click "Check again".
 * Requires pretty permalinks (any setting except "Plain") so /wp-json/ works.
 
 == Changelog ==
+
+= 1.6.1 =
+* Users with the Client role from Click Hive Utility can open the call inbox, play voicemails and set call status. Deleting calls and the settings page stay with administrators.
 
 = 1.6.0 =
 * The phone system's health check uses its own signed ping, which answers with a normal success. Before, each check produced an error response, and SiteGround's anti-bot could start challenging the phone system's requests.
