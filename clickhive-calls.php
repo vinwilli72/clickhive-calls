@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Click Hive Calls
  * Description:       Call inbox for phone systems managed by Click Hive Marketing. Shows every call to this site's business number, plays voicemails securely, and tracks follow-up.
- * Version:           1.6.0
+ * Version:           1.6.1
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Click Hive Marketing
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CHC_VERSION', '1.6.0' );
+define( 'CHC_VERSION', '1.6.1' );
 define( 'CHC_FILE', __FILE__ );
 define( 'CHC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CHC_URL', plugin_dir_url( __FILE__ ) );
@@ -52,13 +52,17 @@ register_deactivation_hook( __FILE__, 'chc_deactivate' );
  * Creates the Call Manager role and gives administrators the same abilities.
  * Call records are kept if the plugin is deactivated or deleted.
  */
-function chc_activate() {
-	$caps = array(
+function chc_manager_caps() {
+	return array(
 		'read'                => true,
 		'chc_view_calls'      => true,
 		'chc_play_recordings' => true,
 		'chc_edit_calls'      => true,
 	);
+}
+
+function chc_activate() {
+	$caps = chc_manager_caps();
 	remove_role( 'chc_call_manager' );
 	add_role( 'chc_call_manager', __( 'Call Manager', 'clickhive-calls' ), $caps );
 
@@ -81,7 +85,27 @@ add_action( 'admin_init', function () {
 	if ( $admin && ! $admin->has_cap( 'chc_delete_calls' ) ) {
 		$admin->add_cap( 'chc_delete_calls' );
 	}
+	chc_grant_client_role();
 } );
+
+/**
+ * Sites using Click Hive Utility's Client Access have a "client" role. Clients get
+ * the same call abilities as a Call Manager (see calls, play voicemails, set the
+ * status) but not delete, and never the settings page, which stays manage_options.
+ * Checked on every admin load because Click Hive Utility rebuilds its role from
+ * scratch when its settings change, which drops abilities added by other plugins.
+ */
+function chc_grant_client_role() {
+	$client = get_role( 'client' );
+	if ( ! $client ) {
+		return;
+	}
+	foreach ( array_keys( chc_manager_caps() ) as $cap ) {
+		if ( ! $client->has_cap( $cap ) ) {
+			$client->add_cap( $cap );
+		}
+	}
+}
 
 function chc_deactivate() {
 	wp_clear_scheduled_hook( 'chc_daily_cleanup' );
