@@ -1,7 +1,7 @@
 === Click Hive Calls ===
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 
 Call inbox for phone systems managed by Click Hive Marketing.
 
@@ -40,6 +40,9 @@ Dashboard > Updates and click "Check again".
 * Requires pretty permalinks (any setting except "Plain") so /wp-json/ works.
 
 == Changelog ==
+
+= 1.6.0 =
+* The phone system's health check uses its own signed ping, which answers with a normal success. Before, each check produced an error response, and SiteGround's anti-bot could start challenging the phone system's requests.
 
 = 1.5.0 =
 * Call details only say "Rang" when a phone actually rang. Calls where the caller never chose an option that rings say so.

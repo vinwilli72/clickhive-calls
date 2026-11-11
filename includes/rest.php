@@ -3,6 +3,7 @@
  * REST routes.
  *
  *   POST /wp-json/clickhive-calls/v1/calls               Twilio sends a call record (signed).
+ *   POST /wp-json/clickhive-calls/v1/ping                Health check (signed). Always a normal 200.
  *   GET  /wp-json/clickhive-calls/v1/calls/{id}/audio     Staff play a voicemail (logged in).
  *   POST /wp-json/clickhive-calls/v1/calls/{id}           Staff change status or category.
  */
@@ -12,6 +13,15 @@ defined( 'ABSPATH' ) || exit;
 const CHC_NS = 'clickhive-calls/v1';
 
 add_action( 'rest_api_init', function () {
+	register_rest_route(
+		CHC_NS,
+		'/ping',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'chc_rest_ping',
+			'permission_callback' => 'chc_verify_signature',
+		)
+	);
 	register_rest_route(
 		CHC_NS,
 		'/calls',
@@ -89,6 +99,24 @@ function chc_verify_signature( WP_REST_Request $request ) {
 		return new WP_Error( 'chc_bad_signature', 'Invalid signature', array( 'status' => 401 ) );
 	}
 	return true;
+}
+
+/**
+ * The phone system's health check. Signed like a call record, creates nothing,
+ * and answers with a normal 200 so hosting security (SiteGround's anti-bot) sees
+ * an ordinary successful request instead of a stream of errors.
+ */
+function chc_rest_ping( WP_REST_Request $request ) {
+	$data   = json_decode( $request->get_body(), true );
+	$number = chc_digits( is_array( $data ) && isset( $data['business_number'] ) ? $data['business_number'] : '' );
+	$listed = $number && in_array( $number, chc_allowed_numbers(), true );
+	return rest_ensure_response(
+		array(
+			'ok'            => true,
+			'number_listed' => (bool) $listed,
+			'version'       => CHC_VERSION,
+		)
+	);
 }
 
 function chc_rest_receive( WP_REST_Request $request ) {
