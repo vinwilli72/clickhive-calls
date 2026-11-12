@@ -1,7 +1,7 @@
 === Click Hive Calls ===
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.6.1
+Stable tag: 1.7.0
 
 Call inbox for phone systems managed by Click Hive Marketing.
 
@@ -17,6 +17,11 @@ voicemail, call the person back from the number, and set a follow-up status.
 * Calls can only be added by the Click Hive phone system, signed with this
   site's key, and only for the numbers listed in Settings.
 * Wording is editable: inbox title, status choices, and an optional category.
+* Line Settings (under the inbox menu): the business chooses who answers (Caller 1
+  and an optional Caller 2) and sets vacation dates, one tab per Business number.
+  Changes are saved straight to the phone system and used on the next call. Hours
+  and holidays are shown here and changed by Click Hive. Administrators and the
+  Client role from Click Hive Utility can use it; Call Managers can't.
 
 == Updates ==
 
@@ -40,6 +45,9 @@ Dashboard > Updates and click "Check again".
 * Requires pretty permalinks (any setting except "Plain") so /wp-json/ works.
 
 == Changelog ==
+
+= 1.7.0 =
+* New Line Settings page: change Caller 1 and Caller 2 and set vacation dates for each business number, without contacting Click Hive. Business hours and holidays are shown read-only. Needs the phone system's /line-settings service (clickhive-voice, 2026-11-12 or later).
 
 = 1.6.1 =
 * Users with the Client role from Click Hive Utility can open the call inbox, play voicemails and set call status. Deleting calls and the settings page stay with administrators.

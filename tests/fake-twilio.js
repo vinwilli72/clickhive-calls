@@ -21,10 +21,13 @@ function startPlayServer() {
         calls: (sid) => ({ fetch: async () => ({ sid, to: sid === 'CAother' ? '+15035550000' : '+13603090950' }) }),
         sync: realClient.sync,
       });
+      // Google Sheets goes to the harness's fake (the code no longer uses the
+      // googleapis library, so it reads the sheet with plain fetch).
+      const harnessFetch = global.fetch;
       global.fetch = async (u, o) =>
         String(u).startsWith('https://api.twilio.com/')
           ? { ok: true, status: 200, arrayBuffer: async () => FAKE_MP3 }
-          : nativeFetch(u, o);
+          : harnessFetch(u, o);
       delete require.cache[playPath];
       require(playPath).handler(context, event, (err, r) => {
         global.fetch = nativeFetch;

@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Click Hive Calls
  * Description:       Call inbox for phone systems managed by Click Hive Marketing. Shows every call to this site's business number, plays voicemails securely, and tracks follow-up.
- * Version:           1.6.1
+ * Version:           1.7.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Click Hive Marketing
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CHC_VERSION', '1.6.1' );
+define( 'CHC_VERSION', '1.7.0' );
 define( 'CHC_FILE', __FILE__ );
 define( 'CHC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CHC_URL', plugin_dir_url( __FILE__ ) );
@@ -23,6 +23,7 @@ require_once CHC_DIR . 'includes/settings.php';
 require_once CHC_DIR . 'includes/data.php';
 require_once CHC_DIR . 'includes/rest.php';
 require_once CHC_DIR . 'includes/inbox.php';
+require_once CHC_DIR . 'includes/line-settings.php';
 
 // Updates: each site checks the GitHub releases for vinwilli72/clickhive-calls and
 // offers "Update now" under Plugins. Settings and calls live in the database and
@@ -72,6 +73,7 @@ function chc_activate() {
 			$admin->add_cap( $cap );
 		}
 		$admin->add_cap( 'chc_delete_calls' ); // deleting calls is for administrators only
+		$admin->add_cap( CHC_LINES_CAP );
 	}
 
 	if ( ! wp_next_scheduled( 'chc_daily_cleanup' ) ) {
@@ -82,8 +84,12 @@ function chc_activate() {
 // Updates don't re-run activation, so give administrators any ability added later.
 add_action( 'admin_init', function () {
 	$admin = get_role( 'administrator' );
-	if ( $admin && ! $admin->has_cap( 'chc_delete_calls' ) ) {
-		$admin->add_cap( 'chc_delete_calls' );
+	if ( $admin ) {
+		foreach ( array( 'chc_delete_calls', CHC_LINES_CAP ) as $cap ) {
+			if ( ! $admin->has_cap( $cap ) ) {
+				$admin->add_cap( $cap );
+			}
+		}
 	}
 	chc_grant_client_role();
 } );
@@ -91,7 +97,9 @@ add_action( 'admin_init', function () {
 /**
  * Sites using Click Hive Utility's Client Access have a "client" role. Clients get
  * the same call abilities as a Call Manager (see calls, play voicemails, set the
- * status) but not delete, and never the settings page, which stays manage_options.
+ * status) plus Line Settings (who answers, vacation dates), but not delete, and
+ * never the settings page, which stays manage_options. Call Managers (front-desk
+ * staff) don't get Line Settings.
  * Checked on every admin load because Click Hive Utility rebuilds its role from
  * scratch when its settings change, which drops abilities added by other plugins.
  */
@@ -100,7 +108,7 @@ function chc_grant_client_role() {
 	if ( ! $client ) {
 		return;
 	}
-	foreach ( array_keys( chc_manager_caps() ) as $cap ) {
+	foreach ( array_merge( array_keys( chc_manager_caps() ), array( CHC_LINES_CAP ) ) as $cap ) {
 		if ( ! $client->has_cap( $cap ) ) {
 			$client->add_cap( $cap );
 		}
