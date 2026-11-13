@@ -1,7 +1,7 @@
 === Click Hive Calls ===
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 
 Call inbox for phone systems managed by Click Hive Marketing.
 
@@ -45,6 +45,9 @@ Dashboard > Updates and click "Check again".
 * Requires pretty permalinks (any setting except "Plain") so /wp-json/ works.
 
 == Changelog ==
+
+= 1.7.1 =
+* Users with the Client role from Click Hive Utility can delete calls they don't want to keep. Call Managers still can't, and the settings page stays with administrators.
 
 = 1.7.0 =
 * New Line Settings page: change Caller 1 and Caller 2 and set vacation dates for each business number, without contacting Click Hive. Business hours and holidays are shown read-only. Needs the phone system's /line-settings service (clickhive-voice, 2026-11-12 or later).
