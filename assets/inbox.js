@@ -29,8 +29,13 @@
     fetch(CHC.root + id + '/audio', { headers: headers, credentials: 'same-origin', cache: 'no-store' })
       .then(function (r) {
         if (r.status === 410) throw new Error(CHC.text.expired);
-        if (!r.ok) throw new Error(CHC.text.noplay);
-        return r.blob();
+        if (r.ok) return r.blob();
+        // Show the reason the site gave, after the usual first line.
+        return r.json().catch(function () { return {}; }).then(function (body) {
+          var reason = body && body.message ? body.message : '';
+          if (r.status === 401 || (body && body.code === 'rest_cookie_invalid_nonce')) reason = CHC.text.signin;
+          throw new Error(CHC.text.noplay + (reason ? '\n\n' + reason : ''));
+        });
       })
       .then(function (blob) {
         var url = URL.createObjectURL(blob);

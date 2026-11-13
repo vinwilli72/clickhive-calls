@@ -1,7 +1,7 @@
 === Click Hive Calls ===
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 
 Call inbox for phone systems managed by Click Hive Marketing.
 
@@ -45,6 +45,9 @@ Dashboard > Updates and click "Check again".
 * Requires pretty permalinks (any setting except "Plain") so /wp-json/ works.
 
 == Changelog ==
+
+= 1.7.2 =
+* When a voicemail can't be played, the message now says why: playback not set up, the site couldn't reach the phone system, the phone system refused the site (with the site address it sent), or the playback service returned an error.
 
 = 1.7.1 =
 * Users with the Client role from Click Hive Utility can delete calls they don't want to keep. Call Managers still can't, and the settings page stays with administrators.

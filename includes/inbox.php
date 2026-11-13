@@ -39,6 +39,7 @@ add_action( 'admin_enqueue_scripts', function ( $hook ) {
 				'failed'   => __( 'Could not save. Refresh and try again.', 'clickhive-calls' ),
 				'noplay'   => __( 'This voicemail could not be played.', 'clickhive-calls' ),
 				'expired'  => __( 'This voicemail is no longer available.', 'clickhive-calls' ),
+				'signin'   => __( 'Your sign-in has expired. Refresh the page and try again.', 'clickhive-calls' ),
 				'confirm'  => __( 'Delete this call from the inbox? This cannot be undone.', 'clickhive-calls' ),
 				'nodelete' => __( 'Could not delete. Refresh and try again.', 'clickhive-calls' ),
 			),
