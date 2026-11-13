@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Click Hive Calls
  * Description:       Call inbox for phone systems managed by Click Hive Marketing. Shows every call to this site's business number, plays voicemails securely, and tracks follow-up.
- * Version:           1.7.0
+ * Version:           1.7.1
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Click Hive Marketing
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CHC_VERSION', '1.7.0' );
+define( 'CHC_VERSION', '1.7.1' );
 define( 'CHC_FILE', __FILE__ );
 define( 'CHC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CHC_URL', plugin_dir_url( __FILE__ ) );
@@ -72,7 +72,7 @@ function chc_activate() {
 		foreach ( array_keys( $caps ) as $cap ) {
 			$admin->add_cap( $cap );
 		}
-		$admin->add_cap( 'chc_delete_calls' ); // deleting calls is for administrators only
+		$admin->add_cap( 'chc_delete_calls' ); // administrators and clients, never Call Managers
 		$admin->add_cap( CHC_LINES_CAP );
 	}
 
@@ -97,9 +97,9 @@ add_action( 'admin_init', function () {
 /**
  * Sites using Click Hive Utility's Client Access have a "client" role. Clients get
  * the same call abilities as a Call Manager (see calls, play voicemails, set the
- * status) plus Line Settings (who answers, vacation dates), but not delete, and
- * never the settings page, which stays manage_options. Call Managers (front-desk
- * staff) don't get Line Settings.
+ * status) plus Line Settings (who answers, vacation dates) and deleting calls they
+ * don't want to keep, but never the settings page, which stays manage_options.
+ * Call Managers (front-desk staff) get neither Line Settings nor delete.
  * Checked on every admin load because Click Hive Utility rebuilds its role from
  * scratch when its settings change, which drops abilities added by other plugins.
  */
@@ -108,7 +108,7 @@ function chc_grant_client_role() {
 	if ( ! $client ) {
 		return;
 	}
-	foreach ( array_merge( array_keys( chc_manager_caps() ), array( CHC_LINES_CAP ) ) as $cap ) {
+	foreach ( array_merge( array_keys( chc_manager_caps() ), array( CHC_LINES_CAP, 'chc_delete_calls' ) ) as $cap ) {
 		if ( ! $client->has_cap( $cap ) ) {
 			$client->add_cap( $cap );
 		}
