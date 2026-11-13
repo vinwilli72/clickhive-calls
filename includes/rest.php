@@ -156,7 +156,7 @@ function chc_rest_audio( WP_REST_Request $request ) {
 	$key = (string) chc_setting( 'site_key' );
 	$url = (string) chc_setting( 'playback_url' );
 	if ( 64 !== strlen( $key ) || ! $url ) {
-		return new WP_Error( 'chc_not_configured', 'Playback is not set up', array( 'status' => 503 ) );
+		return new WP_Error( 'chc_not_configured', __( 'Playback is not set up on this site. Add the site key and playback service under Settings > Click Hive Calls.', 'clickhive-calls' ), array( 'status' => 503 ) );
 	}
 
 	$host = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
@@ -168,13 +168,33 @@ function chc_rest_audio( WP_REST_Request $request ) {
 		array( 'timeout' => 25 )
 	);
 	if ( is_wp_error( $response ) ) {
-		return new WP_Error( 'chc_playback_failed', 'Could not reach the playback service', array( 'status' => 502 ) );
+		return new WP_Error(
+			'chc_playback_unreachable',
+			/* translators: %s: error from the web host */
+			sprintf( __( 'This site could not reach the phone system\'s playback service. The web host may be blocking the request. (%s)', 'clickhive-calls' ), $response->get_error_message() ),
+			array( 'status' => 502 )
+		);
 	}
-	$code = wp_remote_retrieve_response_code( $response );
+	$code = (int) wp_remote_retrieve_response_code( $response );
 	$type = (string) wp_remote_retrieve_header( $response, 'content-type' );
+	if ( 404 === $code ) {
+		return new WP_Error( 'chc_playback_gone', __( 'This voicemail is no longer available.', 'clickhive-calls' ), array( 'status' => 410 ) );
+	}
+	if ( 401 === $code || 403 === $code ) {
+		return new WP_Error(
+			'chc_playback_refused',
+			/* translators: %s: this site's address, for example example.com */
+			sprintf( __( 'The phone system refused this site\'s request. This site identifies itself as %s. That address, including or leaving out "www", must match the website listed for this client in the phone system, and the site key must be the one made for it.', 'clickhive-calls' ), $host ),
+			array( 'status' => 502 )
+		);
+	}
 	if ( 200 !== $code || 0 !== strpos( $type, 'audio/' ) ) {
-		$status = 404 === $code ? 410 : 502;
-		return new WP_Error( 'chc_playback_failed', 410 === $status ? 'This voicemail is no longer available' : 'Playback failed', array( 'status' => $status ) );
+		return new WP_Error(
+			'chc_playback_failed',
+			/* translators: 1: HTTP status code, 2: content type */
+			sprintf( __( 'The playback service answered with an error (status %1$d, %2$s). Check the Playback service address under Settings > Click Hive Calls.', 'clickhive-calls' ), $code, $type ? $type : 'no content type' ),
+			array( 'status' => 502 )
+		);
 	}
 
 	chc_log_access( $id, 'played' );
