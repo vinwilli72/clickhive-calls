@@ -1,7 +1,7 @@
 === Click Hive Calls ===
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.7.2
+Stable tag: 1.8.0
 
 Call inbox for phone systems managed by Click Hive Marketing.
 
@@ -45,6 +45,11 @@ Dashboard > Updates and click "Check again".
 * Requires pretty permalinks (any setting except "Plain") so /wp-json/ works.
 
 == Changelog ==
+
+= 1.8.0 =
+* Scorecard above the call inbox: Calls this month, Completed calls, Unheard voicemails and Calls last month. Unheard voicemails links to that tab, and Completed calls links to its status when only one status counts as completed.
+* New "Counts as completed" setting under Status choices. Calls set to a checked status count as Completed. Handled is checked by default.
+* Optional calls summary for Dashboard > Home and the Click Hive Utility Client Dashboard: calls this month, calls needing follow-up, unheard voicemails and the latest call. Turn it on under Settings > Click Hive Calls > Dashboard. Only people who can open the call inbox see it.
 
 = 1.7.2 =
 * When a voicemail can't be played, the message now says why: playback not set up, the site couldn't reach the phone system, the phone system refused the site (with the site address it sent), or the playback service returned an error.

@@ -148,6 +148,8 @@ function chc_render_inbox() {
 			<p class="chc-phi-note"><?php esc_html_e( 'This inbox contains patient information. Lock your screen or sign out when you step away.', 'clickhive-calls' ); ?></p>
 		<?php endif; ?>
 
+		<?php chc_render_scorecard(); ?>
+
 		<ul class="subsubsub chc-views">
 			<?php
 			$i = 0;
