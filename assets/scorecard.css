@@ -1,0 +1,31 @@
+/* Scorecard above the call inbox, and the calls summary on the dashboard. */
+.chc-scorecard { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 16px 0 8px; }
+.chc-scorecard-compact { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 12px; }
+.chc-tile { display: flex; flex-direction: column; gap: 4px; padding: 16px; background: #fff; border: 1px solid #dcdcde; border-radius: 8px; color: #1d2327; text-decoration: none; box-sizing: border-box; }
+.chc-scorecard-compact .chc-tile { padding: 10px 12px; background: #f6f7f7; }
+a.chc-tile:hover, a.chc-tile:focus { border-color: #F7941D; color: #1d2327; }
+.chc-tile-value { font-size: 28px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.chc-scorecard-compact .chc-tile-value { font-size: 22px; }
+.chc-tile-label { font-size: 13px; color: #50575e; }
+.chc-tile-alert { border-color: #F7941D; box-shadow: inset 4px 0 0 #F7941D; }
+.chc-tile-alert .chc-tile-value { color: #8a4b00; }
+
+.chc-dash-latest { margin: 0 0 12px; }
+.chc-dash-latest-label { display: block; font-size: 12px; color: #646970; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 2px; }
+.chc-dash-actions { margin: 0; }
+.chm-dashboard .chc-dash-card { display: block; max-width: 720px; margin-bottom: 24px; }
+
+/* Outcome badges (also defined in inbox.css, which dashboards don't load). */
+.chc-dash .chc-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; line-height: 18px; background: #f0f0f1; color: #3c434a; white-space: nowrap; }
+.chc-dash .chc-badge.chc-voicemail { background: #fef0de; color: #8a4b00; }
+.chc-dash .chc-badge.chc-missed { background: #fcf0f1; color: #8a2424; }
+.chc-dash .chc-badge.chc-answered { background: #edfaef; color: #1e6b2d; }
+.chc-dash .chc-badge.chc-text_requested { background: #e9f0fb; color: #1d4f91; }
+
+@media (max-width: 782px) {
+  .chc-scorecard { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chc-scorecard-compact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .chc-scorecard-compact { grid-template-columns: 1fr; }
+}

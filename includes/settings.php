@@ -20,6 +20,10 @@ function chc_defaults() {
 		'category_options' => '',
 		'phi_mode'         => 0,
 		'retention_days'   => 365,
+		// Status keys that count as Completed on the scorecard.
+		'completed_statuses' => array( 'handled' ),
+		// Show the calls summary on Dashboard > Home and the Click Hive Client Dashboard.
+		'dashboard_card'     => 0,
 	);
 }
 
@@ -38,8 +42,13 @@ function chc_setting( $key ) {
  * as long as the words still produce the same key; removing a line retires it.
  */
 function chc_options( $setting ) {
+	return chc_parse_options( chc_setting( $setting ) );
+}
+
+/** Parses one-per-line choices ("Label" or "Label | key") into key => label. */
+function chc_parse_options( $text ) {
 	$out = array();
-	foreach ( preg_split( '/\r\n|\r|\n/', (string) chc_setting( $setting ) ) as $line ) {
+	foreach ( preg_split( '/\r\n|\r|\n/', (string) $text ) as $line ) {
 		$line = trim( $line );
 		if ( '' === $line ) {
 			continue;
@@ -57,6 +66,11 @@ function chc_options( $setting ) {
 function chc_default_status() {
 	$opts = chc_options( 'status_options' );
 	return $opts ? (string) array_key_first( $opts ) : 'new';
+}
+
+/** Status keys that count as Completed. */
+function chc_completed_statuses() {
+	return array_values( array_intersect( (array) chc_setting( 'completed_statuses' ), array_keys( chc_options( 'status_options' ) ) ) );
 }
 
 /** Label for a stored key, including options that were since retired. */
@@ -130,6 +144,11 @@ function chc_sanitize_settings( $in ) {
 	$out['category_options'] = sanitize_textarea_field( isset( $in['category_options'] ) ? $in['category_options'] : '' );
 	$out['phi_mode']         = empty( $in['phi_mode'] ) ? 0 : 1;
 	$out['retention_days']   = max( 30, min( 3650, absint( isset( $in['retention_days'] ) ? $in['retention_days'] : 365 ) ) );
+	$out['dashboard_card']   = empty( $in['dashboard_card'] ) ? 0 : 1;
+
+	// Completed statuses: only keys that still exist in the saved status choices.
+	$checked                   = array_map( 'sanitize_key', (array) ( isset( $in['completed_statuses'] ) ? $in['completed_statuses'] : array() ) );
+	$out['completed_statuses'] = array_values( array_intersect( $checked, array_keys( chc_parse_options( $out['status_options'] ) ) ) );
 
 	if ( '' !== $key && 64 !== strlen( $out['site_key'] ) ) {
 		add_settings_error( CHC_OPTION, 'chc_key', __( 'The site key should be 64 characters (letters a-f and numbers). It was not changed.', 'clickhive-calls' ) );
@@ -230,6 +249,17 @@ function chc_render_settings() {
 					<td><textarea id="chc_status_options" name="<?php echo esc_attr( CHC_OPTION ); ?>[status_options]" rows="4" class="regular-text"><?php echo esc_textarea( $s['status_options'] ); ?></textarea></td>
 				</tr>
 				<tr>
+					<th scope="row"><?php esc_html_e( 'Counts as completed', 'clickhive-calls' ); ?></th>
+					<td>
+						<fieldset>
+							<?php foreach ( chc_options( 'status_options' ) as $key => $label ) : ?>
+								<label style="display:block"><input type="checkbox" name="<?php echo esc_attr( CHC_OPTION ); ?>[completed_statuses][]" value="<?php echo esc_attr( $key ); ?>" <?php checked( in_array( $key, (array) $s['completed_statuses'], true ) ); ?>> <?php echo esc_html( $label ); ?></label>
+							<?php endforeach; ?>
+						</fieldset>
+						<p class="description"><?php esc_html_e( 'Calls set to a checked status count as Completed on the scorecard. After adding a status above, save once to see it here.', 'clickhive-calls' ); ?></p>
+					</td>
+				</tr>
+				<tr>
 					<th scope="row"><label for="chc_category_label"><?php esc_html_e( 'Category label', 'clickhive-calls' ); ?></label></th>
 					<td><input type="text" id="chc_category_label" name="<?php echo esc_attr( CHC_OPTION ); ?>[category_label]" value="<?php echo esc_attr( $s['category_label'] ); ?>" class="regular-text"></td>
 				</tr>
@@ -238,6 +268,17 @@ function chc_render_settings() {
 					<td>
 						<textarea id="chc_category_options" name="<?php echo esc_attr( CHC_OPTION ); ?>[category_options]" rows="4" class="regular-text" placeholder="New patient&#10;Existing patient&#10;Other"><?php echo esc_textarea( $s['category_options'] ); ?></textarea>
 						<p class="description"><?php esc_html_e( 'Leave empty to hide the category column.', 'clickhive-calls' ); ?></p>
+					</td>
+				</tr>
+			</table>
+
+			<h2><?php esc_html_e( 'Dashboard', 'clickhive-calls' ); ?></h2>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Calls summary', 'clickhive-calls' ); ?></th>
+					<td>
+						<label><input type="checkbox" name="<?php echo esc_attr( CHC_OPTION ); ?>[dashboard_card]" value="1" <?php checked( $s['dashboard_card'] ); ?>> <?php esc_html_e( 'Show a calls summary on Dashboard > Home and the Click Hive Client Dashboard', 'clickhive-calls' ); ?></label>
+						<p class="description"><?php esc_html_e( 'Calls this month, calls needing follow-up, unheard voicemails and the latest call. Only people who can open the call inbox see it.', 'clickhive-calls' ); ?></p>
 					</td>
 				</tr>
 			</table>
